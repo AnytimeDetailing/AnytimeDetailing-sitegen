@@ -50,7 +50,7 @@ Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) { //log
     }
 });
 Handlebars.registerHelper('urlize', function(item) { //turn this into a url helper
-    return fn_BuildSlugSegment(item)
+    return fn_BuildSlugSegment(item);
 });
 // Handlebars.registerHelper('times', function(n, block) {
 //     var accum = '';
@@ -238,7 +238,8 @@ fn_generatepagesfromdir(data,'pages-generator')
 
 
 //build pages in ./pages-blog
-fn_generatepagesfromdir(data,'pages-blog')
+var blogposts = fn_generatepagesfromdir(data,'pages-blog','blog-')
+data.randomposts = _.sampleSize(blogposts, 5);
 //build blog index
 data.blogposts = _.reverse(data.blogposts);
 data.page.title = data.name + " - Blog";
@@ -252,6 +253,8 @@ setTimeout(() => {
     console.log(chalk.blue('This application and site is made possible by the value for value model. Ask yourself what this site was worth to you this year. Was worth $30 or was it worth $3000?'));
     console.log(chalk.blue('Send that amount to \u001B[96m https://paypal.me/chunjee\u001B[94m Your financial support directly translates into updates and more free tools. Thank you!'));
 }, 1000);
+
+
 
 
 // /--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\--/--\
@@ -327,8 +330,9 @@ function fn_buildpage(para_arrayofblocks,para_data,para_supplimental = "") {
     page = fn_SwapBackSlashes(page); // replace any backslashes
 
     //Write the page to disk
-    console.log("Writing " + _.toLower(para_data.filename + ".html") + " to disk");
-    fs.writeFile(_.toLower(fn_BuildSlugSegment(para_data.filename + ".html")), page, function(err) {
+    var filename = fn_BuildSlugSegment(para_data.filename) + ".html";
+    console.log("Writing " + filename + " to disk");
+    fs.writeFile(filename, page, function(err) {
         if (err) {
             return console.log(err);
         }
@@ -338,10 +342,11 @@ function fn_buildpage(para_arrayofblocks,para_data,para_supplimental = "") {
     return page;
 }
 
-function fn_generatepagesfromdir(para_data,para_dir) {
+function fn_generatepagesfromdir(para_data,para_dir,para_filenameprepend = "") {
+    var mutated_array = [];
     var files = fs.readdirSync(process.cwd() + '/' + para_dir, {encoding: 'utf8', withFileTypes: true});
     array_generatepages =  _.filter(files, function(o) {
-        // filter out any files that are not images
+        // filter out any files that are not json
         return /\.json|\.JSON/gi.test(o.name);
     });
     for (let index = 0; index < array_generatepages.length; index++) {
@@ -351,29 +356,38 @@ function fn_generatepagesfromdir(para_data,para_dir) {
         var parsedjson = JSON.parse(pagejson);
         // console.log(JSON.parse(pagejson));
 
-        data = _.merge({},data,parsedjson);
-        data.page.sections = parsedjson.sections;
-        data.filename = element.name.substring(0, element.name.length - 5);
+        para_data = _.merge({},para_data,parsedjson);
+        para_data.page.sections = parsedjson.sections;
+        var filename = para_filenameprepend + element.name
+        para_data.filename = filename.substring(0, filename.length - 5);
         if (parsedjson.title) {
-            data.page.title = data.name + " - " + parsedjson.title;
+            para_data.page.title = para_data.name + " - " + parsedjson.title;
         } else {
-            data.page.title = data.name + " - " + data.filename;
+            para_data.page.title = para_data.name + " - " + para_data.filename;
+        }
+        if (parsedjson.date) {
+            para_data.date_human = moment(parsedjson.date).format('MMMM Do YYYY')
+            para_data.date_machine = moment(parsedjson.date).format('YYYY MM DD')
+            para_data.date_MMM = moment(parsedjson.date).format('MMM')
+            para_data.date_D = moment(parsedjson.date).format('D')
         }
 
         if (parsedjson.order) {
             // write out any extra filenames requested
             if (!parsedjson.fileoutputs) {
-                parsedjson.fileoutputs = [data.filename];
+                parsedjson.fileoutputs = [para_data.filename];
             } else {
-                parsedjson.fileoutputs.push(data.filename);
+                parsedjson.fileoutputs.push(para_data.filename);
             }
             for (let index = 0; index < parsedjson.fileoutputs.length; index++) {
                 const element = parsedjson.fileoutputs[index];
-                data.filename = _.toLower(element);
-                fn_buildpage(parsedjson.order, para_data);
+                para_data.filename = _.toLower(element);
+                fn_buildpage(parsedjson.order, _.clone(para_data));
             }
         }
+        mutated_array.push(_.merge({},para_data,parsedjson));
     }
+    return mutated_array;
 }
 
 function fn_SwapBackSlashes(para_input) {
