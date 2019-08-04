@@ -1,0 +1,24 @@
+{
+    "title": "Terms of Service",
+
+    "order": ["head","topbar","header","nav","page","footer","scripts"],
+
+    "sections": [
+        {"html":"<h1 class=\"page-title\">{{ name }} Terms of Service</h1>"},
+
+        {"label": "Understanding the terms of service",
+        "text": "These are writted in plain english for your coinvience. A full legal agreement is forthcoming and will be appended at the end."},
+        
+        {"label": "OPERATING/MOVING YOUR VEHICLE",
+        "text": "You authorize {{ name }} to operate or to move your vehicle, only if it is necessary to do so."},
+        
+        {"label": "FEEDBACK AND PHOTOS",
+        "text": "Please do send feedback via e-mail – good or bad.<br>You authorize {{ name }} to photograph and/or record images of the vehicle being serviced for marketing and resale purposes. All plates, VIN numbers, and personally identifying information is anonymized or censored. These images may be published on our website, Facebook page(s), and other social media. If you would not like your vehicle photographed, please communicate your desire beforehand.<br>No personal identifying information of the vehicle or its owner will be published."},
+        
+        {"label": "PERSONAL INFORMATION",
+        "text": "During the course of setting up service we may collect and store your personal information for communication, service, or billing purposes.<br> DOES NOT sell customer information.<br>We DO NOT share any customer information with third parties except to process billing transactions."},
+        
+        {"label": "LIABILITY",
+        "text": "{{ name }} is fully insured. Our insurance covers every vehicle. You agree not to hold {{ ../name }} liable for damage to the vehicle prior and during service and after service. If something does get damaged while detailing your vehicle, we will advise you of the incident. You agree to waiver {{ name }} from legal arbitration. We do check and document any existing damage during the pre-inspection. Additional pre-existing damage may be noted as the vehicle is cleaned or detailed. We will take pictures of your vehicle immediately before we begin the job. You agree not to hold {{ ../name }} liable for pre-existing damage."}
+    ]
+}

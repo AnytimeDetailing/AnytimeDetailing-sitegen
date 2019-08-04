@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "handlebars": "^4.1.2",
+    "jimp": "^0.6.4",
+    "lodash": "^4.17.11",
+    "moment": "^2.24.0"
+  }
+}

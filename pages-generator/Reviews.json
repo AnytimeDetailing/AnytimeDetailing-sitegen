@@ -1,0 +1,20 @@
+{
+    "title": "Customer Reviews",
+
+    "order": ["head","topbar","header","nav","note","page","testimonials","ba-ticker","footer","socialproof","scripts"],
+
+    "fileoutputs": ["review"],
+
+    "note": [{
+        "label": "<span>Get</span> Rewarded", 
+        "text": "Your feedback helps others and encourages us to do even better. Thank you.<br><br>Please let us know if you've left a recent review and we'll be sure to find a way to reward you in the near future or on your next detail.", 
+        "img": "images/customers/reviews.jpg", 
+        "icon": "icon-pricetag"}],
+
+    "sections": [
+        {"html": "<h3>Please consider submitting feedback to the following:</h3>"},
+        {"text": "<strong><a href=\"\">Google</a></strong>, <strong><a>Yelp</a></strong>"},
+        {"html": "<h1>Review Directly</h1><p>Want to leave a review directly? Type it below or feel free to send us one via e-mail. {{ contactemail }}</p><sub>Note: We will anonymize your first and last name when you send reviews via e-mail</sub>"},
+        {"html": "<div id=\"stamped-main-widget\" data-product-id=\"0001\" data-name=\"Full Detail\" data-url=\"anytimedetailing.com\" data-image-url=\"##product.image##\" data-description=\"Our Full Service Detail\" data-product-sku=\"A0001\"></div>"}
+    ]
+}

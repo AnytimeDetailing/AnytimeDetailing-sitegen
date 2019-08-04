@@ -1,0 +1,17 @@
+{
+    "title": "Why moms need to steam clean their car to keep their kids healthier",
+
+    "order": ["head","topbar","header","nav","page","footer","scripts"],
+
+    "sections": [
+        {"label": "Thank you for scheduling online! I really appreciate it.",
+        "text": ""},
+    
+        {"label": "Getting prepared for your service",
+        "text": "Please ensure that your vehicle is unlocked or make the vehicle keys available to us at time of service. Disable any factory or aftermarket alarms."},
+        {"text": "To make the most of your service, consider removing the following: large items, trash, items in the glove compartment, children seats, phone chargers, accessories, etc."},
+        
+        {"label": "What we will not do",
+        "text": "For liability reasons we cannot re-install children seats.<br>For liability reasons we cannot clean blood."}
+    ]
+}
