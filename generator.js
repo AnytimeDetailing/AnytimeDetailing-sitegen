@@ -366,10 +366,11 @@ function fn_generatepagesfromdir(para_data,para_dir,para_filenameprepend = "") {
             para_data.page.title = para_data.name + " - " + para_data.filename;
         }
         if (parsedjson.date) {
-            para_data.date_human = moment(parsedjson.date).format('MMMM Do YYYY')
-            para_data.date_machine = moment(parsedjson.date).format('YYYY MM DD')
-            para_data.date_MMM = moment(parsedjson.date).format('MMM')
-            para_data.date_D = moment(parsedjson.date).format('D')
+            var l_date = Date(parsedjson.date).toISOString;
+            para_data.date_human = moment(l_date).format('MMMM Do YYYY');
+            para_data.date_machine = moment(l_date).format('YYYY MM DD');
+            para_data.date_MMM = moment(l_date).format('MMM');
+            para_data.date_D = moment(l_date).format('D');
         }
 
         if (parsedjson.order) {
