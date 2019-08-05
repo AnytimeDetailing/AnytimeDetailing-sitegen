@@ -1,5 +1,5 @@
 // Version 
-// v1.1.4
+// v1.4.3
 
 //system
 const { lstatSync, readdirSync } = require('fs');
@@ -90,6 +90,8 @@ Handlebars.registerHelper('summary', function(item) { //summarizing helper
 // /--\--/--\--/--\
 // Build all projects pages and vars
 // \--/--\--/--\--/
+var allpages_array = [],
+allpages_omission = ["","qr"];
 
 // Function for creating dirs array
 const isDirectory = source => lstatSync(source).isDirectory();
@@ -238,8 +240,8 @@ fn_generatepagesfromdir(data,'pages-generator')
 
 
 //build pages in ./pages-blog
-var blogposts = fn_generatepagesfromdir(data,'pages-blog','blog-')
-data.randomposts = _.sampleSize(blogposts, 5);
+data.blogposts = fn_generatepagesfromdir(data,'pages-blog','blog-')
+data.randomposts = _.sampleSize(data.blogposts, 5);
 //build blog index
 data.blogposts = _.reverse(data.blogposts);
 data.page.title = data.name + " - Blog";
@@ -358,8 +360,8 @@ function fn_generatepagesfromdir(para_data,para_dir,para_filenameprepend = "") {
 
         para_data = _.merge({},para_data,parsedjson);
         para_data.page.sections = parsedjson.sections;
-        var filename = para_filenameprepend + element.name
-        para_data.filename = filename.substring(0, filename.length - 5);
+        para_data.title = element.name
+        para_data.filename = fn_BuildSlugSegment(para_filenameprepend + element.name)
         if (parsedjson.title) {
             para_data.page.title = para_data.name + " - " + parsedjson.title;
         } else {
@@ -376,13 +378,12 @@ function fn_generatepagesfromdir(para_data,para_dir,para_filenameprepend = "") {
         if (parsedjson.order) {
             // write out any extra filenames requested
             if (!parsedjson.fileoutputs) {
-                parsedjson.fileoutputs = [para_data.filename];
+                parsedjson.fileoutputs = [para_data.filename]; //make it an array no matter what
             } else {
                 parsedjson.fileoutputs.push(para_data.filename);
             }
             for (let index = 0; index < parsedjson.fileoutputs.length; index++) {
-                const element = parsedjson.fileoutputs[index];
-                para_data.filename = _.toLower(element);
+                para_data.filename = parsedjson.fileoutputs[index];
                 fn_buildpage(parsedjson.order, _.clone(para_data));
             }
         }
@@ -397,7 +398,11 @@ function fn_SwapBackSlashes(para_input) {
 
 function fn_BuildSlugSegment(para_text) {
     var out = _.truncate(para_text, {length: 42, omission: ''});
-    var out = _.toLower(_.replace(out,/\s/g,"-")); //replace all spaces with dashes
+    out = _.replace(out,".json","")
+    out = _.toLower(_.replace(_.trim(out),/\s/g,"-")); //replace all spaces with dashes, trimming all trailing whitespace first
+    if (_.includes(para_text,".html") && !_.includes(out,".html")) {
+        console.log("ERROR INCOMING");
+    }
     return out;
 }
 
