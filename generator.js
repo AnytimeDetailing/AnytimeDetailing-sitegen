@@ -1,5 +1,5 @@
 // Version 
-// v1.4.3
+// v1.4.6
 
 //system
 const { lstatSync, readdirSync } = require('fs');
@@ -71,15 +71,18 @@ Handlebars.registerHelper('times', function(n, block) { //do it this many times 
 Handlebars.registerHelper('random', function(item) { //choose random from array helper
     return _.sampleSize(item, 1);
 });
+Handlebars.registerHelper('sample', function(item, size=5) { //choose random from array helper
+    return _.sampleSize(item, size);
+});
 Handlebars.registerHelper('timg', function(item) { //append -timg helper
     var re_imgmeta = /(.+)\.(.+)$/gi.exec(item);
     // console.log("TIMG: " + re_imgmeta[1] + "-timg." + re_imgmeta[2])
     return re_imgmeta[1] + "-timg." + _.toLower(re_imgmeta[2]);
 });
 Handlebars.registerHelper('summary', function(item) { //summarizing helper
-    var l_summary = item.split(' ')
+    var l_summary = item.split(' ');
     l_summary = l_summary.slice(0,100);
-    return _.join(l_summary, ' ') + "..."
+    return _.join(l_summary, ' ') + "...";
 });
 
 
@@ -91,7 +94,7 @@ Handlebars.registerHelper('summary', function(item) { //summarizing helper
 // Build all projects pages and vars
 // \--/--\--/--\--/
 var allpages_array = [],
-allpages_omission = ["","qr"];
+allpages_omission = ["confirmed-scheduling.html","qr.html"];
 
 // Function for creating dirs array
 const isDirectory = source => lstatSync(source).isDirectory();
@@ -155,13 +158,14 @@ projectdirs.forEach(element => {
 
     // Save to data.projects array
     var l_project = {
+        name: l_name[1],
+        filename: fn_BuildSlugSegment(_.replace(l_name[0],"\\projects\\","")),
         date: l_date,
         date_human: moment(l_date).format('MMMM Do YYYY'),
         date_machine: moment(l_date).format('YYYY MM DD'),
         date_MMM: moment(l_date).format('MMM'),
         date_D: moment(l_date).format('D'),
         dir: l_name[0],
-        name: l_name[1],
         mainimg: mainimg,
         img: pics[0],
         pics: _.clone(_.sortBy(pics)),
@@ -176,8 +180,7 @@ projectdirs.forEach(element => {
 data.recentprojects = _.orderBy(data.projects, function(o) {
     return new moment(o.date);
 }, ['desc']);
-data.recentprojects = data.recentprojects.slice(0,3)
-// console.log(data.recentprojects)
+data.recentprojects = data.recentprojects.slice(0,3); //sample the latest 3 posts
 
 // Actually build EACH page project page and write to disk
 data.projects.forEach( element => {
@@ -193,7 +196,7 @@ data.projects.forEach( element => {
     //build sections
     data.page.sections = [element,{gallerymini: data.gallerymini}];
     data.img = element.pics[0];
-    data.filename = fn_BuildSlugSegment(element.date_machine + "-" + element.name);
+    data.filename = fn_BuildSlugSegment(element.filename);
     fn_buildpage(data.project_order, data);
 });
 
@@ -236,11 +239,11 @@ data.cities.forEach(element => {
 
 
 //build pages in ./pages-generator (reviews, etc)
-fn_generatepagesfromdir(data,'pages-generator')
+fn_generatepagesfromdir(data,'pages-generator');
 
 
 //build pages in ./pages-blog
-data.blogposts = fn_generatepagesfromdir(data,'pages-blog','blog-')
+data.blogposts = fn_generatepagesfromdir(data,'pages-blog','blog-');
 data.randomposts = _.sampleSize(data.blogposts, 5);
 //build blog index
 data.blogposts = _.reverse(data.blogposts);
@@ -249,9 +252,21 @@ data.filename = "blog";
 fn_buildpage(data.blog_order, data);
 
 
+//build sitemap
+allpages_array = _.difference(allpages_array,allpages_omission);
+data.page.sections = []
+for (let index = 0; index < allpages_array.length; index++) {
+    const element = allpages_array[index];
+    data.page.sections.push( {
+        "html": "<a href=\"" + element + "\">" + element + "</a></br>"
+    });
+    data.filename = "sitemap";
+}
+fn_buildpage(['head','topbar','header','nav','page','footer','scripts'], data);
+
+
 // Finished. Log Value for Value message
 setTimeout(() => {
-    // chalkAnimation.pulse('');
     console.log(chalk.blue('This application and site is made possible by the value for value model. Ask yourself what this site was worth to you this year. Was worth $30 or was it worth $3000?'));
     console.log(chalk.blue('Send that amount to \u001B[96m https://paypal.me/chunjee\u001B[94m Your financial support directly translates into updates and more free tools. Thank you!'));
 }, 1000);
@@ -320,15 +335,12 @@ function fn_buildpage(para_arrayofblocks,para_data,para_supplimental = "") {
         para_data.thispage = _.clone(para_supplimental);
     }
 
-    // Grab the page being created and append to title (done outside as we don't know the file to write)
-
     ///Compile page and make any final changes
     var template = Handlebars.compile(l_source);
     var page = template(para_data);
         //we do it twice because some {{ handlebars }} are embedded a second layer deep in json files
     template = Handlebars.compile(page);
     page = template(para_data);
-
     page = fn_SwapBackSlashes(page); // replace any backslashes
 
     //Write the page to disk
@@ -340,6 +352,8 @@ function fn_buildpage(para_arrayofblocks,para_data,para_supplimental = "") {
         }
     });
 
+    //Remeber all pages in a global var (for sitemap)
+    allpages_array.push(filename);
     //return the page if for some reason needed (currently not)
     return page;
 }
@@ -360,8 +374,8 @@ function fn_generatepagesfromdir(para_data,para_dir,para_filenameprepend = "") {
 
         para_data = _.merge({},para_data,parsedjson);
         para_data.page.sections = parsedjson.sections;
-        para_data.title = element.name
-        para_data.filename = fn_BuildSlugSegment(para_filenameprepend + element.name)
+        para_data.title = element.name;
+        para_data.filename = fn_BuildSlugSegment(para_filenameprepend + element.name);
         if (parsedjson.title) {
             para_data.page.title = para_data.name + " - " + parsedjson.title;
         } else {
